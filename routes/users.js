@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 // Register User
 router.post('/register', async (req, res) => {
@@ -49,6 +50,48 @@ router.post('/register', async (req, res) => {
         res.status(500).json({
             success: false,
             message: err.message
+        });
+    }
+});
+
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User does not exist'
+            });
+        }
+
+        // Compare password
+        // Note: You'll need to implement password hashing in your registration
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        
+        if (!isValidPassword) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        // Return success response
+        res.json({
+            success: true,
+            message: 'Login successful',
+            uid: user._id.toString(),
+            email: user.email
+        });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during login'
         });
     }
 });
