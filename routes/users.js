@@ -6,10 +6,11 @@ const router = express.Router();
 // Register User
 router.post('/register', async (req, res) => {
     const { email, password } = req.body;
+    console.log("pinged")
     try {
         const user = new User({ email, password });
         await user.save();
-        res.status(201).json({ message: 'User registered successfully!' });
+        res.status(200).json({ message: 'User registered successfully!' });
         console.log("pinged")
     } catch (err) {
         res.status(400).json({ error: err.message });
