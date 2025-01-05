@@ -71,6 +71,7 @@ router.post('/login', async (req, res) => {
         // Compare password
         // Note: You'll need to implement password hashing in your registration
         const isValidPassword = await bcrypt.compare(password, user.password);
+        console.log(user.password);
         
         if (!isValidPassword) {
             return res.status(401).json({
