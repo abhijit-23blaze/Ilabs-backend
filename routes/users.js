@@ -98,6 +98,42 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.get('/data', async (req, res) => {
+    const { uid } = req.query; // Assuming UID is passed as a query parameter
+
+    try {
+        const user = await User.findById(uid); // Find user by UID
+
+        console.log(user.displayName);
+        console.log(user.email);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Return user data (you can add/remove fields based on your needs)
+        res.json({
+            success: true,
+            userData: {
+                displayName: user.displayName,
+                post: user.post,
+                imageUri: user.imageUri,
+                status: user.status
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching user data:', err);
+        res.status(500).json({
+            success: false,
+            message: 'Server error fetching user data'
+        });
+    }
+});
+
+
 router.post('/check', async (req, res) => {
     const { email } = req.body;
     try {
