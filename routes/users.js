@@ -1,4 +1,3 @@
-// routes/users.js
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('../models/User');
@@ -26,10 +25,14 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // Create new user
+        // Hash the password before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create new user with hashed password
         const user = new User({
             email,
-            password, // Note: You should hash this password before saving
+            password: hashedPassword, // Store the hashed password
             displayName,
             post,
             imageUri,
@@ -42,7 +45,7 @@ router.post('/register', async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Registration successful',
-            uid: user._id.toString() // Converting MongoDB ObjectId to string
+            uid: user._id.toString()
         });
 
     } catch (err) {
@@ -68,11 +71,8 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Compare password
-        // Note: You'll need to implement password hashing in your registration
+        // Compare password with hashed password in database
         const isValidPassword = await bcrypt.compare(password, user.password);
-        console.log(user.password);
-        console.log(password);
         
         if (!isValidPassword) {
             return res.status(401).json({
@@ -98,7 +98,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Check if User Exists
 router.post('/check', async (req, res) => {
     const { email } = req.body;
     try {
