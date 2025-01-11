@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const upload = multer({ dest: 'uploads/' });
 
 // Register User
 router.post('/register', async (req, res) => {
