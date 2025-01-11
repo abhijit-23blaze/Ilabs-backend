@@ -152,4 +152,112 @@ router.post('/check', async (req, res) => {
     }
 });
 
+router.get('/profile/:userId', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+
+        res.json({
+            success: true,
+            userData: {
+                email: user.email,
+                name: user.displayName,
+                postinIIIT: user.post,
+                imageUri: user.imageUri,
+                status: user.status,
+                roles: user.roles || []
+            }
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// Update user profile
+router.put('/profile/:userId', async (req, res) => {
+    try {
+        const updates = {};
+        if (req.body.imageUri) updates.imageUri = req.body.imageUri;
+        if (req.body.status) updates.status = req.body.status;
+        if (req.body.name) updates.displayName = req.body.name;
+        if (req.body.post) updates.post = req.body.post;
+
+        const user = await User.findByIdAndUpdate(
+            req.params.userId,
+            { $set: updates },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            userData: {
+                email: user.email,
+                name: user.displayName,
+                postinIIIT: user.post,
+                imageUri: user.imageUri,
+                status: user.status,
+                roles: user.roles || []
+            }
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// Get user posts
+router.get('/posts/:userId', async (req, res) => {
+    try {
+        const posts = await Post.find({ 'user._id': req.params.userId })
+            .sort({ creation_time_ms: -1 });
+
+        res.json({
+            success: true,
+            posts: posts
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// Upload profile image
+router.post('/profile/image', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.json({ success: false, message: 'No image provided' });
+        }
+
+        // Here you would typically upload the image to a cloud storage service
+        // and get back a URL. For this example, we'll use a placeholder URL
+        const imageUrl = `http://your-server.com/uploads/${req.file.filename}`;
+
+        const user = await User.findByIdAndUpdate(
+            req.body.userId,
+            { $set: { imageUri: imageUrl } },
+            { new: true }
+        );
+
+        res.json({
+            success: true,
+            message: 'Image uploaded successfully',
+            userData: {
+                email: user.email,
+                name: user.displayName,
+                postinIIIT: user.post,
+                imageUri: user.imageUri,
+                status: user.status,
+                roles: user.roles || []
+            }
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;
