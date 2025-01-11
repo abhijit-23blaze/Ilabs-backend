@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+//const Post = require('../models/Post');
+const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 // Register User
@@ -213,19 +215,19 @@ router.put('/profile/:userId', async (req, res) => {
 });
 
 // Get user posts
-router.get('/posts/:userId', async (req, res) => {
-    try {
-        const posts = await Post.find({ 'user._id': req.params.userId })
-            .sort({ creation_time_ms: -1 });
+// router.get('/posts/:userId', async (req, res) => {
+//     try {
+//         const posts = await Post.find({ 'user._id': req.params.userId })
+//             .sort({ creation_time_ms: -1 });
 
-        res.json({
-            success: true,
-            posts: posts
-        });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
+//         res.json({
+//             success: true,
+//             posts: posts
+//         });
+//     } catch (error) {
+//         res.json({ success: false, message: error.message });
+//     }
+// });
 
 // Upload profile image
 router.post('/profile/image', upload.single('image'), async (req, res) => {
